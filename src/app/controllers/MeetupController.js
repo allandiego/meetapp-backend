@@ -28,7 +28,7 @@ class MeetupController {
       include: [
         {
           model: User,
-          as: 'owner',
+          as: 'Owner',
           attributes: ['id', 'name', 'email'],
         },
         {

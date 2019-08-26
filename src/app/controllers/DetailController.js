@@ -9,7 +9,7 @@ class DetailController {
       include: [
         {
           model: User,
-          as: 'owner',
+          as: 'Owner',
           attributes: ['id', 'name', 'email'],
         },
         {
@@ -33,7 +33,12 @@ class DetailController {
       return res.status(response.error.status).json(response);
     }
 
-    return res.json(meetup);
+    const data = {
+      organizing: meetup.Owner.id === req.userId,
+      ...meetup.toJSON(),
+    };
+
+    return res.json(data);
   }
 }
 

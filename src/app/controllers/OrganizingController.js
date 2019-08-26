@@ -1,8 +1,29 @@
+import { Op } from 'sequelize';
+import { startOfDay, endOfDay, parseISO } from 'date-fns';
+
 import Meetup from '../models/Meetup';
 
 class OrganizingController {
   async index(req, res) {
-    const meetups = await Meetup.findAll({ where: { user_id: req.userId } });
+    const where = { user_id: req.userId };
+    const page = req.query.page || 1;
+
+    if (req.query.date) {
+      const searchDate = parseISO(req.query.date);
+
+      where.date = {
+        [Op.between]: [startOfDay(searchDate), endOfDay(searchDate)],
+      };
+    }
+
+    const perPage = 10;
+    const meetups = await Meetup.findAll({
+      where,
+      limit: perPage,
+      offset: perPage * page - perPage,
+      attributes: ['id', 'title', 'description', 'location', 'date', 'past'],
+      order: ['date'],
+    });
 
     return res.json(meetups);
   }

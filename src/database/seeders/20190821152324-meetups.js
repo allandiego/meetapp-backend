@@ -10,7 +10,7 @@ module.exports = {
           title: 'Encontro teste 1',
           description:
             'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor i',
-          location: 'Usuário Paulo',
+          location: 'Maceió',
           date: '2019-11-23 16:00:00',
           created_at: '2019-08-20 17:32:12',
           updated_at: '2019-08-20 17:32:12',
@@ -46,7 +46,7 @@ module.exports = {
           title: 'Encontro teste 4',
           description:
             'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor i',
-          location: 'Usuário Paulo',
+          location: 'São Paulo',
           date: '2019-11-26 16:00:00',
           created_at: '2019-08-20 17:32:12',
           updated_at: '2019-08-20 17:32:12',
@@ -82,7 +82,7 @@ module.exports = {
           title: 'Encontro teste 7',
           description:
             'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor i',
-          location: 'Usuário Paulo',
+          location: 'Minas Gerais',
           date: '2019-08-29 16:00:00',
           created_at: '2019-08-20 17:32:12',
           updated_at: '2019-08-20 17:32:12',
@@ -118,7 +118,7 @@ module.exports = {
           title: 'Encontro teste 10',
           description:
             'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor i',
-          location: 'Usuário Paulo',
+          location: 'Aracaju',
           date: '2019-08-19 16:00:00',
           created_at: '2019-08-20 17:32:12',
           updated_at: '2019-08-20 17:32:12',
