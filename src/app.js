@@ -61,7 +61,7 @@ class App {
         },
       };
 
-      return res.status(response.error.code).json(response);
+      return res.status(response.error.status).json(response);
     });
   }
 }

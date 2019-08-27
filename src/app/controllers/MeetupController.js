@@ -28,11 +28,12 @@ class MeetupController {
       include: [
         {
           model: User,
-          as: 'Owner',
+          as: 'owner',
           attributes: ['id', 'name', 'email'],
         },
         {
           model: File,
+          as: 'file',
           attributes: ['id', 'path', 'url'],
         },
       ],
@@ -42,13 +43,52 @@ class MeetupController {
     return res.json(meetups);
   }
 
+  async show(req, res) {
+    const meetup = await Meetup.findByPk(req.params.id, {
+      // attributes: ['id', 'title', 'description', 'location', 'date', 'past'],
+      include: [
+        {
+          model: User,
+          as: 'owner',
+          attributes: ['id', 'name', 'email'],
+        },
+        {
+          model: File,
+          as: 'file',
+          attributes: ['id', 'path', 'url'],
+        },
+      ],
+    });
+
+    if (!meetup) {
+      const response = {
+        error: {
+          status: 400,
+          type: 'KeyNotFound',
+          message: 'Invalid Meetup',
+          user_title: 'Erro - Meetup inválido',
+          user_msg: 'O meetup informado não existe',
+        },
+      };
+
+      return res.status(response.error.status).json(response);
+    }
+
+    const data = {
+      organizing: meetup.owner.id === req.userId,
+      ...meetup.toJSON(),
+    };
+
+    return res.json(data);
+  }
+
   async store(req, res) {
     const schema = Yup.object().shape({
       title: Yup.string().required(),
-      file_id: Yup.number().required(),
       description: Yup.string().required(),
-      location: Yup.string().required(),
       date: Yup.date().required(),
+      location: Yup.string().required(),
+      file_id: Yup.number().required(),
     });
 
     if (!(await schema.isValid(req.body))) {

@@ -6,7 +6,7 @@ module.exports = {
         {
           id: '1',
           name: 'Usuário Organizador 1',
-          email: 'organizador1@meetapp.com',
+          email: 'organizador@meetapp.com',
           password_hash:
             '$2a$08$x447YIMjgsnVdCjdQS5Ueea229o7y8mbISqT6YZQSrRGZeGIIbkd.',
           created_at: '2019-08-20 16:56:03',
