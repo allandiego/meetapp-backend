@@ -1,4 +1,5 @@
 import { Op } from 'sequelize';
+import * as Yup from 'yup';
 
 import Queue from '../../lib/Queue';
 import SubscriptionMail from '../jobs/SubscriptionMail';
@@ -31,9 +32,26 @@ class SubscriptionController {
   }
 
   async store(req, res) {
+    const schema = Yup.object().shape({
+      meetup_id: Yup.number().required(),
+    });
+
+    if (!(await schema.isValid(req.body))) {
+      const response = {
+        error: {
+          status: 400,
+          type: 'NotFoundKeyError',
+          message: 'Meetups id not found',
+          user_title: 'Erro',
+          user_msg: 'Identificador do evento não informado',
+        },
+      };
+
+      return res.status(response.error.status).json(response);
+    }
     const user = await User.findByPk(req.userId);
 
-    const meetup = await Meetup.findByPk(req.params.id, {
+    const meetup = await Meetup.findByPk(req.body.meetup_id, {
       include: [
         {
           model: User,
@@ -148,6 +166,41 @@ class SubscriptionController {
     });
 
     return res.json(subscription);
+  }
+
+  async delete(req, res) {
+    const subscription = await Subscription.findByPk(req.params.id);
+
+    if (!subscription) {
+      const response = {
+        error: {
+          status: 400,
+          type: 'KeyNotFoundError',
+          message: 'Subscription do not exists',
+          user_title: 'Erro',
+          user_msg: 'Não é foi possível localizar a inscrição',
+        },
+      };
+
+      return res.status(response.error.status).json(response);
+    }
+
+    if (subscription.user_id !== req.userId) {
+      const response = {
+        error: {
+          status: 401,
+          type: 'AuthorizationError',
+          message: 'You can only cancel your own subscriptions',
+          user_title: 'Erro',
+          user_msg: 'Você pode cancelar apenas suas próprias inscrições ',
+        },
+      };
+
+      return res.status(response.error.status).json(response);
+    }
+
+    await subscription.destroy();
+    return res.send();
   }
 }
 
