@@ -5,6 +5,7 @@ import Queue from '../../lib/Queue';
 import SubscriptionMail from '../jobs/SubscriptionMail';
 
 import User from '../models/User';
+import File from '../models/File';
 import Meetup from '../models/Meetup';
 import Subscription from '../models/Subscription';
 
@@ -17,6 +18,19 @@ class SubscriptionController {
       include: [
         {
           model: Meetup,
+          include: [
+            {
+              model: User,
+              as: 'owner',
+              attributes: ['id', 'name'],
+              required: true,
+            },
+            {
+              model: File,
+              as: 'file',
+              attributes: ['id', 'path', 'url'],
+            },
+          ],
           where: {
             date: {
               [Op.gt]: new Date(),
