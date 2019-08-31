@@ -20,7 +20,7 @@ class OrganizingController {
     const meetups = await Meetup.findAll({
       where,
       limit: perPage,
-      offset: perPage * page - perPage,
+      offset: (page - 1) * perPage,
       attributes: ['id', 'title', 'description', 'location', 'date', 'past'],
       order: ['date'],
     });

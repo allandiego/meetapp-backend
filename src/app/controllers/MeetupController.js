@@ -9,7 +9,11 @@ import User from '../models/User';
 class MeetupController {
   async index(req, res) {
     const where = {};
-    const page = req.query.page || 1;
+    const page = parseInt(req.query.page || 1, 10);
+    const perPage = parseInt(
+      (req.query.per_page > 50 ? 10 : req.query.per_page) || 10,
+      10
+    );
 
     if (req.query.date) {
       const searchDate = parseISO(req.query.date);
@@ -19,11 +23,11 @@ class MeetupController {
       };
     }
 
-    const perPage = 10;
-    const meetups = await Meetup.findAll({
+    const meetups = await Meetup.findAndCountAll({
       where,
       limit: perPage,
-      offset: perPage * page - perPage,
+      offset: (page - 1) * perPage,
+      order: ['date'],
       attributes: ['id', 'title', 'description', 'location', 'date', 'past'],
       include: [
         {
@@ -37,10 +41,14 @@ class MeetupController {
           attributes: ['id', 'path', 'url'],
         },
       ],
-      order: ['date'],
     });
 
-    return res.json(meetups);
+    const total_pages = Math.ceil(meetups.count / perPage);
+
+    return res.json({
+      total_pages,
+      ...meetups,
+    });
   }
 
   async show(req, res) {
