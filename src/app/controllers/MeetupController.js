@@ -1,10 +1,13 @@
-import * as Yup from 'yup';
 import { Op } from 'sequelize';
 import { isBefore, startOfDay, endOfDay, parseISO } from 'date-fns';
+
+import Cache from '../../lib/Cache';
 
 import Meetup from '../models/Meetup';
 import File from '../models/File';
 import User from '../models/User';
+
+import CreateMeetupService from '../services/CreateMeetupService';
 
 class MeetupController {
   async index(req, res) {
@@ -14,6 +17,15 @@ class MeetupController {
       (req.query.per_page > 50 ? 10 : req.query.per_page) || 10,
       10
     );
+
+    // const cacheKey = `user:${req.userId}:meetups:${page}`;
+    const cacheKey = `meetups:${page}`;
+
+    const cached = await Cache.get(cacheKey);
+
+    if (cached) {
+      return res.json(cached);
+    }
 
     if (req.query.date) {
       const searchDate = parseISO(req.query.date);
@@ -45,10 +57,14 @@ class MeetupController {
 
     const total_pages = Math.ceil(meetups.count / perPage);
 
-    return res.json({
+    const meetupsData = {
       total_pages,
       ...meetups,
-    });
+    };
+
+    await Cache.set(cacheKey, meetupsData);
+
+    return res.json(meetupsData);
   }
 
   async show(req, res) {
@@ -91,75 +107,21 @@ class MeetupController {
   }
 
   async store(req, res) {
-    const schema = Yup.object().shape({
-      title: Yup.string().required(),
-      description: Yup.string().required(),
-      date: Yup.date().required(),
-      location: Yup.string().required(),
-      file_id: Yup.number().required(),
-    });
+    const { file_id, title, description, location, date } = req.body;
 
-    if (!(await schema.isValid(req.body))) {
-      const response = {
-        error: {
-          status: 400,
-          type: 'ValidationError',
-          message: 'Validation Fails',
-          user_title: 'Erro',
-          user_msg: 'Falha na validação, verifique seus dados',
-        },
-      };
-
-      return res.status(response.error.status).json(response);
-    }
-
-    if (isBefore(parseISO(req.body.date), new Date())) {
-      const response = {
-        error: {
-          status: 400,
-          type: 'ValidationError',
-          message: 'Meetup date invalid',
-          user_title: 'Erro',
-          user_msg: 'Data selecionada inválida',
-        },
-      };
-
-      return res.status(response.error.status).json(response);
-    }
-
-    const user_id = req.userId;
-
-    const meetup = await Meetup.create({
-      ...req.body,
-      user_id,
+    const meetup = await CreateMeetupService.run({
+      user_id: req.userId,
+      file_id,
+      title,
+      description,
+      location,
+      date,
     });
 
     return res.json(meetup);
   }
 
   async update(req, res) {
-    const schema = Yup.object().shape({
-      title: Yup.string(),
-      file_id: Yup.number(),
-      description: Yup.string(),
-      location: Yup.string(),
-      date: Yup.date(),
-    });
-
-    if (!(await schema.isValid(req.body))) {
-      const response = {
-        error: {
-          status: 400,
-          type: 'ValidationError',
-          message: 'Validation Fails',
-          user_title: 'Erro',
-          user_msg: 'Falha na validação, verifique seus dados',
-        },
-      };
-
-      return res.status(response.error.status).json(response);
-    }
-
     const user_id = req.userId;
 
     const meetup = await Meetup.findByPk(req.params.id);
@@ -208,6 +170,8 @@ class MeetupController {
 
     await meetup.update(req.body);
 
+    await Cache.invalidatePrefix('meetups');
+
     return res.json(meetup);
   }
 
@@ -245,6 +209,8 @@ class MeetupController {
     }
 
     await meetup.destroy();
+
+    await Cache.invalidatePrefix('meetups');
 
     return res.json({});
   }

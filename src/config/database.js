@@ -20,5 +20,5 @@ module.exports = {
     updatedAt: 'updated_at',
   },
   // eslint-disable-next-line no-console
-  logging: process.env.NODE_ENV === 'development' ? false : console.log,
+  logging: process.env.NODE_ENV === 'development' ? console.log : false,
 };
